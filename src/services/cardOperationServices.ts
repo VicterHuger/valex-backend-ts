@@ -1,3 +1,4 @@
+import Cryptr from 'cryptr';
 import dayjs from 'dayjs';
 import { faker } from '@faker-js/faker';
 import * as cardRepository from '../repositories/cardRepository'
@@ -13,22 +14,19 @@ export async function createCard(body: { type: cardRepository.TransactionTypes }
 
     const employee:employeeRepository.Employee = await verifyReturnExistingItem(employeeId, employeeRepository.findById, "NotFound", "There is no employee with this id");
 
-    const card:cardRepository.CardUpdateData= {
-        employeeId,
-        type: body.type, 
-    }
-
     const cardEmployee: cardRepository.Card | undefined = await cardRepository.findByTypeAndEmployeeId(body.type, employeeId);
 
     if (cardEmployee) {
-        generateThrowErrorMessages("Conflict", "This employee has already an card of this type!")
+        generateThrowErrorMessages("Conflict", `The employee ${employee.fullName} has already an card of ${body.type} type!`)
     }
 
-    card.number = createCardNumber() ;
+    const newCard = generateNewCard(employeeId, employee.fullName, body.type);
+    
+    const rowCount:number = await cardRepository.insert(newCard);
 
-    card.cardholderName = createCardName(employee.fullName);
-
-    card.expirationDate = createCardExpirationDate(); 
+    if(rowCount===0) generateThrowErrorMessages("InternalServerError", "It was not possible to insert a new card");
+    
+    return;
 
 }
 
@@ -62,4 +60,28 @@ function createCardNumber(){
 
 function createCardExpirationDate(){
     return dayjs().add(5,"y").format("MM/YY");
+}
+
+function createEncryptedCVC(){
+    const CVC:string = faker.random.numeric(3,{allowLeadingZeros:true});
+    const cryptr:Cryptr = new Cryptr(process.env.CRYPTR_KEY);
+    return cryptr.encrypt(CVC);  
+}
+
+function generateNewCard(employeeId:number, fullName:string, type:cardRepository.TransactionTypes ){
+    
+    const card:cardRepository.CardInsertData={
+        employeeId,
+        type,
+        number:createCardNumber(),
+        cardholderName:createCardName(fullName),
+        expirationDate: createCardExpirationDate(),
+        securityCode: createEncryptedCVC(),
+        password:null,
+        isVirtual:false,
+        originalCardId:null,
+        isBlocked:true
+    }
+    return card;
+
 }
