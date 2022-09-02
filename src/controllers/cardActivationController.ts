@@ -7,7 +7,7 @@ export async function activateCard(req: Request, res: Response) {
     const password: string = res.locals.body.password;
 
     await cardActivationService.activateCard(securityCode, password, id);
-
-    return res.status(200).send("Card activated!");
+    return res.sendStatus(501);
+    // return res.status(200).send("Card activated!");
 
 }
