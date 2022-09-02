@@ -3,6 +3,9 @@ import * as companyRepository from '../repositories/companyRepository'
 import * as employeeRepository from '../repositories/employeeRepository';
 import { Card } from '../repositories/cardRepository';
 import { generateThrowErrorMessages } from '../middlewares/errorHandlerMiddleware';
+import { faker } from '@faker-js/faker';
+
+
 
 export async function createCard(body:Card,headers:string){
     // const company:companyRepository.Company |undefined = await companyRepository.findByApiKey(headers);
@@ -16,6 +19,9 @@ export async function createCard(body:Card,headers:string){
     if(cardEmployee){
         generateThrowErrorMessages("Conflict", "This employee has already an card of this type!")
     }
+
+    const cardNumber = faker.random.numeric(16, {allowLeadingZeros:true});
+    
     
     
     // if(company===undefined){
