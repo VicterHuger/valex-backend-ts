@@ -21,7 +21,9 @@ export async function createCard(body:Card,headers:string){
     }
 
     const cardNumber = faker.random.numeric(16, {allowLeadingZeros:true});
-    
+
+    const cardName:string = createCardName(employee.fullName);
+    console.log(cardName);
     
     
     // if(company===undefined){
@@ -52,4 +54,18 @@ async function verifyReturnExistingItem(item:string|number, callback:any, code:s
         generateThrowErrorMessages(code,message);
     }
     return itemSearched;
+}
+
+function createCardName(string:string){
+    const newString:string= string.toUpperCase();
+    const names: string[]=newString.split(" ");
+    const arrayNewNames=[names[0]];
+
+    for (let i:number=1; i<names.length -1; i++){
+        if(names[i].length>=3) arrayNewNames.push(names[i][0]);
+    }
+    
+    arrayNewNames.push(names[names.length-1]);
+  
+    return arrayNewNames.join(" ");
 }
