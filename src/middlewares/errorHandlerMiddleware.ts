@@ -8,6 +8,7 @@ export interface errorObject {
 export default function errorHandler(error:any, req:Request, res:Response, next:NextFunction){
     console.log(error);
     const errorStatus={
+        "BadRequest":400,
         "Unauthorized":401,
         "NotFound": 404,
         "Conflict": 409,

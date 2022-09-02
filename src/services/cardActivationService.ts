@@ -8,7 +8,8 @@ import * as cardRepository from '../repositories/cardRepository';
 export async function activateCard(securityCode:string, password:string, id:number){
     const card:cardRepository.Card = await cardRepository.findById(id);
     if(card===undefined) generateThrowErrorMessages("NotFound", `There is no card with id ${id}`);
-    if(isCardExpired(card.expirationDate)) generateThrowErrorMessages("BadRequest", "This card is expired and can't be activated!");    
+    if(isCardExpired(card.expirationDate)) generateThrowErrorMessages("BadRequest", "This card is expired and can't be activated!");
+    if(!!card.password) generateThrowErrorMessages("BadRequest","This card can't be activated because a password has been already signup");    
 }
 
 function isCardExpired(date:string):boolean{
