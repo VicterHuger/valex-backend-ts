@@ -1,13 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 
-export interface errorObject {
-    code:string,
-    message:string
-}
-
-export async function errorHandler(error:any|errorObject, req:Request, res:Response, next:NextFunction){
+export default function errorHandler(error:any, req:Request, res:Response, next:NextFunction){
     console.log(error);
     const errorStatus={
+        "Unauthorized":401,
         "NotFound":404,
         "InternalServerError":500
     }
