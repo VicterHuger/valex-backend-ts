@@ -20,13 +20,24 @@ export async function createCard(body: { type: cardRepository.TransactionTypes }
         generateThrowErrorMessages("Conflict", `The employee ${employee.fullName} has already an card of ${body.type} type!`)
     }
 
-    const newCard = generateNewCard(employeeId, employee.fullName, body.type);
-    
-    const rowCount:number = await cardRepository.insert(newCard);
+    const CVC:string = createCVC();
 
-    if(rowCount===0) generateThrowErrorMessages("InternalServerError", "It was not possible to insert a new card");
+    const encryptedCVC:string = encryptCVC(CVC);
+
+    const newCard:cardRepository.CardInsertData = generateNewCard(employeeId, employee.fullName, body.type, encryptedCVC);
     
-    return;
+    const cardInsertedId = await cardRepository.insert(newCard);
+
+    if(!cardInsertedId) generateThrowErrorMessages("InternalServerError", "It was not possible to insert a new card");
+    
+    newCard.securityCode=CVC;
+
+    const card:cardRepository.Card = {
+        ...newCard,
+        id:cardInsertedId
+    }
+
+    return card;
 
 }
 
@@ -62,13 +73,17 @@ function createCardExpirationDate(){
     return dayjs().add(5,"y").format("MM/YY");
 }
 
-function createEncryptedCVC(){
+function createCVC(){
     const CVC:string = faker.random.numeric(3,{allowLeadingZeros:true});
-    const cryptr:Cryptr = new Cryptr(process.env.CRYPTR_KEY);
-    return cryptr.encrypt(CVC);  
+    return CVC;
 }
 
-function generateNewCard(employeeId:number, fullName:string, type:cardRepository.TransactionTypes ){
+function encryptCVC(cvc:string){
+    const cryptr:Cryptr = new Cryptr(process.env.CRYPTR_KEY);
+    return cryptr.encrypt(cvc);  
+}
+
+function generateNewCard(employeeId:number, fullName:string, type:cardRepository.TransactionTypes, encryptedCVC:string ){
     
     const card:cardRepository.CardInsertData={
         employeeId,
@@ -76,7 +91,7 @@ function generateNewCard(employeeId:number, fullName:string, type:cardRepository
         number:createCardNumber(),
         cardholderName:createCardName(fullName),
         expirationDate: createCardExpirationDate(),
-        securityCode: createEncryptedCVC(),
+        securityCode: encryptedCVC,
         password:null,
         isVirtual:false,
         originalCardId:null,
