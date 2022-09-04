@@ -12,6 +12,7 @@ export default function errorHandler(error:any, req:Request, res:Response, next:
         "Unauthorized":401,
         "NotFound": 404,
         "Conflict": 409,
+        "UnprocessableEntity": 422,
         "InternalServerError":500
     }
     if(errorStatus[error.code]===undefined) return res.sendStatus(500);

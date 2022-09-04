@@ -11,7 +11,8 @@ export async function activateCard(securityCode:string, password:string, id:numb
     if(card===undefined) generateThrowErrorMessages("NotFound", `There is no card with id ${id}`);
     if(isCardExpired(card.expirationDate)) generateThrowErrorMessages("BadRequest", "This card is expired and can't be activated!");
     if(!!card.password) generateThrowErrorMessages("BadRequest","This card can't be activated because a password has been already signup");
-    if(!isCVCCorrect(securityCode,card.securityCode)) generateThrowErrorMessages("Unauthorized", "The CVC is uncorrect!");    
+    if(!isCVCCorrect(securityCode,card.securityCode)) generateThrowErrorMessages("Unauthorized", "The CVC is uncorrect!");
+    if(!isPasswordLenghtCorrect(password)) generateThrowErrorMessages("UnprocessableEntity", "Password must contains four numbers!");
 }
 
 function isCardExpired(date:string):boolean{
@@ -24,5 +25,10 @@ function isCVCCorrect(CVC:string, encryptedCVC:string ){
     const cryptr:Cryptr = new Cryptr(process.env.CRYPTR_KEY);
     const descryptrCVC:string = cryptr.decrypt(encryptedCVC);
     return CVC === descryptrCVC;
-
 }
+
+function isPasswordLenghtCorrect(password:string):boolean{
+    const regexExpression:RegExp =  /^\d{4}$/;
+    return regexExpression.test(password); 
+}
+
