@@ -111,7 +111,7 @@ export async function update(id: number, cardData: CardUpdateData) {
       offset: 2,
     });
 
-  connection.query(
+  const {rowCount} = await connection.query(
     `
     UPDATE cards
       SET ${cardColumns}
@@ -119,6 +119,7 @@ export async function update(id: number, cardData: CardUpdateData) {
   `,
     [id, ...cardValues]
   );
+  return rowCount;
 }
 
 export async function remove(id: number) {

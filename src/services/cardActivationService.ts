@@ -1,10 +1,10 @@
+import bcrypt from 'bcrypt';
 import dayjs from 'dayjs';
 import 'dayjs/locale/pt-br';
 import Cryptr from 'cryptr';
 
 import { generateThrowErrorMessages } from '../middlewares/errorHandlerMiddleware';
 import * as cardRepository from '../repositories/cardRepository';
-
 
 export async function activateCard(securityCode:string, password:string, id:number){
     const card:cardRepository.Card = await cardRepository.findById(id);
@@ -13,6 +13,12 @@ export async function activateCard(securityCode:string, password:string, id:numb
     if(!!card.password) generateThrowErrorMessages("BadRequest","This card can't be activated because a password has been already signup");
     if(!isCVCCorrect(securityCode,card.securityCode)) generateThrowErrorMessages("Unauthorized", "The CVC is uncorrect!");
     if(!isPasswordLenghtCorrect(password)) generateThrowErrorMessages("UnprocessableEntity", "Password must contains four numbers!");
+    const updatedCardProperties:cardRepository.CardUpdateData = {
+        password: encryptPassword(password)
+    };
+    const rowCount:number = await cardRepository.update(id,updatedCardProperties);
+    if(rowCount===0) generateThrowErrorMessages("InternalServerError","Something went wrong and the card was not updated");
+    return; 
 }
 
 function isCardExpired(date:string):boolean{
@@ -24,6 +30,7 @@ function isCardExpired(date:string):boolean{
 function isCVCCorrect(CVC:string, encryptedCVC:string ){
     const cryptr:Cryptr = new Cryptr(process.env.CRYPTR_KEY);
     const descryptrCVC:string = cryptr.decrypt(encryptedCVC);
+    console.log(descryptrCVC);
     return CVC === descryptrCVC;
 }
 
@@ -32,3 +39,7 @@ function isPasswordLenghtCorrect(password:string):boolean{
     return regexExpression.test(password); 
 }
 
+function encryptPassword(password:string){
+    const encryptedPassword:string = bcrypt.hashSync(password,10);
+    return encryptedPassword;
+}
