@@ -5,14 +5,15 @@ import * as cardRepository from '../repositories/cardRepository'
 import * as companyRepository from '../repositories/companyRepository'
 import * as employeeRepository from '../repositories/employeeRepository';
 import { generateThrowErrorMessages } from '../middlewares/errorHandlerMiddleware';
+import * as cardAuxiliarServices from './cardAuxiliarServices';
 
 
 
 export async function createCard(body: { type: cardRepository.TransactionTypes }, employeeId: number, headers: string) {
 
-    await verifyReturnExistingItem(headers, companyRepository.findByApiKey, "Unauthorized", "There is no company with this API-key");
+    await cardAuxiliarServices.verifyReturnExistingItem(headers, companyRepository.findByApiKey, "Unauthorized", "There is no company with this API-key");
 
-    const employee:employeeRepository.Employee = await verifyReturnExistingItem(employeeId, employeeRepository.findById, "NotFound", "There is no employee with this id");
+    const employee:employeeRepository.Employee = await cardAuxiliarServices.verifyReturnExistingItem(employeeId, employeeRepository.findById, "NotFound", "There is no employee with this id");
 
     const cardEmployee: cardRepository.Card | undefined = await cardRepository.findByTypeAndEmployeeId(body.type, employeeId);
 
@@ -41,15 +42,7 @@ export async function createCard(body: { type: cardRepository.TransactionTypes }
 
 }
 
-async function verifyReturnExistingItem(item: string | number, callback: any, code: string, message: string) {
-    
-    const itemSearched = await callback(item);
-    
-    if (itemSearched === undefined) {
-        generateThrowErrorMessages(code, message);
-    }
-    return itemSearched;
-}
+
 
 function createCardName(string: string) {
     const newString: string = string.toUpperCase();
