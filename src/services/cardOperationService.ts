@@ -1,9 +1,11 @@
 import Cryptr from 'cryptr';
 import dayjs from 'dayjs';
 import { faker } from '@faker-js/faker';
-import * as cardRepository from '../repositories/cardRepository'
-import * as companyRepository from '../repositories/companyRepository'
+import * as cardRepository from '../repositories/cardRepository';
+import * as companyRepository from '../repositories/companyRepository';
 import * as employeeRepository from '../repositories/employeeRepository';
+import * as rechargeRepository from '../repositories/rechargeRepository';
+import * as paymentRepository from '../repositories/paymentRepository';
 import { generateThrowErrorMessages } from '../middlewares/errorHandlerMiddleware';
 import * as cardAuxiliarServices from './cardAuxiliarServices';
 
@@ -42,6 +44,15 @@ export async function createCard(body: { type: cardRepository.TransactionTypes }
 
 }
 
+export async function listTransactions(id:number) {
+    const card:cardRepository.Card = await cardAuxiliarServices.verifyReturnExistingItem(id,cardRepository.findById,"NotFound", `There is no card with id ${id}`);
+    const recharges:rechargeRepository.Recharge[] = await rechargeRepository.findByCardId(id);
+    const transactions:paymentRepository.PaymentWithBusinessName[] = await paymentRepository.findByCardId(id);
+    const balance:number = generateBalance(id, recharges, transactions);
+    return {
+        balance, transactions, recharges
+    }
+}
 
 
 function createCardName(string: string) {
@@ -93,3 +104,21 @@ function generateNewCard(employeeId:number, fullName:string, type:cardRepository
     return card;
 
 }
+ function generateBalance(id:number, recharges:rechargeRepository.Recharge[], transactions:paymentRepository.PaymentWithBusinessName[]){
+    
+    const receipts:number= recharges.reduce((prev:number, curr:rechargeRepository.Recharge)=>{
+        return prev + curr.amount
+    },0);
+
+    const costs:number = transactions.reduce((prev:number, curr:paymentRepository.PaymentWithBusinessName)=>{
+        return prev+curr.amount
+    },0);
+
+    return receipts - costs;
+}
+
+// function formatExtractTransactions(balance:number, costs:paymentRepository.PaymentWithBusinessName[], receipts:rechargeRepository.Recharge[]){
+//     const transactions = costs.map(item=>{}
+       
+//     );
+// }
