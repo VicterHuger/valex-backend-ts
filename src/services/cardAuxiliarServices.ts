@@ -30,3 +30,8 @@ export async function updateIsBlockByPassword(id:number, cardPassword:string, pa
     }
     return generateThrowErrorMessages("Unauthorized", "The password is incorrect!");
 }
+
+export function verifyCardActivated(password:string):void{
+    if(!password) return generateThrowErrorMessages("BadRequest", "This card is not activated!");
+    return;    
+}
