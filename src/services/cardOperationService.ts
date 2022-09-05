@@ -119,6 +119,3 @@ function generateNewCard(employeeId:number, fullName:string, type:cardRepository
 
 // function formatExtractTransactions(balance:number, costs:paymentRepository.PaymentWithBusinessName[], receipts:rechargeRepository.Recharge[]){
 //     const transactions = costs.map(item=>{}
-       
-//     );
-// }

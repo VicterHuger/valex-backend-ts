@@ -5,6 +5,7 @@ import joi from 'joi';
 
 export default function validateSchema(schema:joi.ObjectSchema){
     return (req:Request,res:Response, next:NextFunction):Response|void=>{
+        console.log("aqui");
         const body:object = req.body;
 
         for(const key of Object.keys(body)){

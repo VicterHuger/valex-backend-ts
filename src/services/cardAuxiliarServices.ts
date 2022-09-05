@@ -20,7 +20,7 @@ export function isCardExpired(date:string):boolean{
 }
 
 export async function updateIsBlockByPassword(id:number, cardPassword:string, password:string, isBlocked:boolean){
-    if(cardPassword && bcrypt.compareSync(password,cardPassword)){
+    if(isPasswordCorrect(cardPassword, password)){
         const updatedCardProperties:cardRepository.CardUpdateData = {
             isBlocked
         };
@@ -29,6 +29,10 @@ export async function updateIsBlockByPassword(id:number, cardPassword:string, pa
         return;
     }
     return generateThrowErrorMessages("Unauthorized", "The password is incorrect!");
+}
+
+export function isPasswordCorrect(cardPassword:string, password:string,){
+    return Boolean(cardPassword && bcrypt.compareSync(password,cardPassword));
 }
 
 export function verifyCardActivated(password:string):void{
