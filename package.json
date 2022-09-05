@@ -4,7 +4,8 @@
   "description": "An API of benefits cards. This API is responsible to create, recharge, activate cards and also to process the card's bought.",
   "main": "server.js",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "build": "tsc --outDir dist",
+    "start": "node dist/src/server.js",
     "dev": "nodemon src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
