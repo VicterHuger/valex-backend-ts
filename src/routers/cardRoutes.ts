@@ -6,6 +6,7 @@ import { createCard } from "../controllers/cardOperationsController";
 import { validateIdParam } from "../middlewares/validateIdParam";
 const router:Router = Router();
 
-router.post("/cards/create/:id", validateSchema(createCardSchema), validateApiKey, validateIdParam ,createCard )
+router.post("/cards/create/:id", validateSchema(createCardSchema), validateApiKey, validateIdParam ,createCard );
+router.get("/cards/transactions/:id", validateIdParam)
 
 export default router;

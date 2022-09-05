@@ -3,7 +3,7 @@ import { rechargeCard } from "../controllers/cardRechargeController";
 import { validateApiKey } from "../middlewares/validateApiKey";
 import { validateIdParam } from "../middlewares/validateIdParam";
 import validateSchema from "../middlewares/validateSchema";
-import cardRechargeSchema from "../schemas/cardRecharge";
+import cardRechargeSchema from "../schemas/cardRechargeSchema";
 
 const router: Router = Router();
 

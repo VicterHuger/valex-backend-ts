@@ -12,3 +12,8 @@ export async function createCard(_req:Request, res:Response){
 
     return res.status(201).send(newCard);
 }
+
+export async function listTransactions(_req:Request, res:Response){
+    const id:number = res.locals.id;
+    // return await 
+}

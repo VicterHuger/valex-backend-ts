@@ -1,9 +1,11 @@
 import * as cardAuxiliarServices from "./cardAuxiliarServices";
 import * as cardRepository from '../repositories/cardRepository';
+import * as companyRepository from '../repositories/companyRepository'
 import { generateThrowErrorMessages } from "../middlewares/errorHandlerMiddleware";
 import * as rechargeRepository from '../repositories/rechargeRepository'
 
-export async function rechargeCard(cardId:number, amount:number){
+export async function rechargeCard(cardId:number, amount:number, apiKey:string){
+    await cardAuxiliarServices.verifyReturnExistingItem(apiKey,companyRepository.findByApiKey, "Unauthorized", "There is no company with this API-key" );
     const card = await cardAuxiliarServices.verifyReturnExistingItem(cardId, cardRepository.findById, "NotFound", `There is no card with id ${cardId}`);
     cardAuxiliarServices.verifyCardActivated(card.password);
     if(cardAuxiliarServices.isCardExpired(card.expirationDate)) generateThrowErrorMessages("BadRequest", "This card is expired and can't be recharged");
